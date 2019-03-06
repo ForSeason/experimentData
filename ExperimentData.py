@@ -1,5 +1,6 @@
 import re
 from functools import reduce
+from ExperimentCalc import *
 
 class ExperimentData():
 
@@ -8,23 +9,23 @@ class ExperimentData():
 
     def dataInput(self):
         text    = input('Please input data: ')
-        pattern = '[^ ]+'
-        data    = re.findall(pattern, text)
-        return list(map(float, data))
+        return list(map(expDec, text.split()))
     
     def avg(self):
-        return reduce(lambda x, y: x + y, self.data) / len(self.data)
+        res = reduce(lambda x, y: x + y, [x / len(self.data) for x in self.data])
+        return expDec(res.data.quantize(self.data[0].data))
     
     def sd(self):  # standard devisions
-        data = self.data.copy()
-        n    = len(data)
-        data.insert(0, 0)
-        return (reduce(lambda x, y: x + (y - self.avg()) ** 2, data) / (n - 1)) ** 0.5
+        # data = self.data.copy()
+        # n    = len(data)
+        # data.insert(0, expDec(0, 0))
+        # return (reduce(lambda x, y: x + (y - self.avg()) ** 2, data) / (n - 1)) ** 0.5
+        return (reduce(lambda x, y: x + y,[(x - self.avg()) ** 2 for x in self.data]) / (len(self.data) - 1)) ** 0.5
     
     def filt(self, g0):
         n = len(self.data)
         s = self.sd()
-        return list(filter(lambda x:x if ((x - self.avg()) / s) < g0 else None, self.data))
+        return list(filter(lambda x:x if ((x - self.avg()) / s).data < g0 else None, self.data))
     
     def ua(self):
         return self.sd() / len(self.data) ** 0.5
@@ -33,4 +34,13 @@ class ExperimentData():
         return delta / 3 ** 0.5
     
     def u(self, delta):
-        return (self.ua() ** 2 + self.ub(delta) ** 2) ** 0.5
+        return (self.ua() ** 2 + self.ub(delta) ** 2) ** '0.5'
+
+    def primaryReg(iData, dData):   #i for independent, d for dependent
+        idData = ExperimentData(list(map(lambda x, y: x * y, iData.data, dData.data)))
+        i2Data = ExperimentData(list(map(lambda x: x ** 2, iData.data)))
+        d2Data = ExperimentData(list(map(lambda x: x ** 2, dData.data)))
+        a = (idData.avg() - iData.avg() * dData.avg()) / (i2Data.avg() - iData.avg() ** 2)
+        b = dData.avg() - a * iData.avg()
+        r = (idData.avg() - iData.avg() * dData.avg()) / ((i2Data.avg() - iData.avg() ** 2) * (d2Data.avg() - dData.avg() ** 2)) ** 0.5
+        return {'a': a.data, 'b': b.data, 'r': r.data}
