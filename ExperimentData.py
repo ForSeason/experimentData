@@ -40,7 +40,10 @@ class ExperimentData():
         idData = ExperimentData(list(map(lambda x, y: x * y, iData.data, dData.data)))
         i2Data = ExperimentData(list(map(lambda x: x ** 2, iData.data)))
         d2Data = ExperimentData(list(map(lambda x: x ** 2, dData.data)))
-        a = (idData.avg() - iData.avg() * dData.avg()) / (i2Data.avg() - iData.avg() ** 2)
+        lxy = idData.avg() - iData.avg() * dData.avg()
+        lxx = i2Data.avg() - iData.avg() ** 2
+        lyy = d2Data.avg() - dData.avg() ** 2
+        a = lxy / lxx
         b = dData.avg() - a * iData.avg()
-        r = (idData.avg() - iData.avg() * dData.avg()) / ((i2Data.avg() - iData.avg() ** 2) * (d2Data.avg() - dData.avg() ** 2)) ** 0.5
-        return {'a': a.data, 'b': b.data, 'r': r.data}
+        r = lxy / (lxx * lyy) ** 0.5
+        return {'a': a, 'b': b, 'r': r}

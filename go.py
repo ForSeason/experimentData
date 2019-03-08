@@ -13,4 +13,6 @@ from ExperimentCalc import *
 
 dataX = ExperimentData()
 dataY = ExperimentData()
-print(ExperimentData.primaryReg(dataX, dataY))
+res = ExperimentData.primaryReg(dataX, dataY)
+print('a: ', res['a'])
+print('b: ', res['b'])

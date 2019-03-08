@@ -25,6 +25,9 @@ class expDec():
         self.exp  = exp
         self.data = Decimal(str(data))
 
+    def __str__(self):
+        return str(self.data)
+
     def __add__(self, other):
         other = other if (isinstance(other, expDec)) else expDec(other, 0)
         if self.data == 0 or other.data == 0:
@@ -119,8 +122,12 @@ class expDec():
 
     def __pow__(self, other):
         other = other if (isinstance(other, expDec)) else expDec(other, 0)
-        sgn = sgnDigit(self.data)
-        getcontext().prec = sgn
-        res = self.data ** other.data
-        getcontext().prec = 20
-        return expDec(res, 0) if (self.exp == 0) else expDec(res)
+        zerofixer  = Decimal('1.000000000000000000000000000000000000000')
+        if self.exp:
+            sgn = sgnDigit(self.data)
+            getcontext().prec = sgn
+            res = self.data ** other.data * zerofixer
+            getcontext().prec = 20
+            return expDec(res)
+        else:
+            return expDec(self.data ** other.data, 0)
